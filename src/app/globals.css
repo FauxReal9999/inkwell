@@ -1,26 +1,61 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Editor prose styling */
+.prose {
+  color: #e7e5e4; /* stone-200 */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.prose p {
+  margin-bottom: 1em;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.prose h1, .prose h2, .prose h3 {
+  color: #fbbf24; /* amber-400 */
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.prose strong {
+  color: #f5f5f4; /* stone-100 */
+}
+
+.prose em {
+  color: #d6d3d1; /* stone-300 */
+}
+
+/* Placeholder styling */
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #78716c; /* stone-500 */
+  pointer-events: none;
+  height: 0;
+}
+
+/* Focus styling */
+.tiptap:focus {
+  outline: none;
+}
+
+/* Selection styling */
+.tiptap ::selection {
+  background-color: #78350f; /* amber-900 */
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #292524; /* stone-800 */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #57534e; /* stone-600 */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #78716c; /* stone-500 */
 }
