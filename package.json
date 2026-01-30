@@ -2,6 +2,9 @@
   "name": "inkwell",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -14,7 +17,6 @@
     "@tiptap/pm": "^3.18.0",
     "@tiptap/react": "^3.18.0",
     "@tiptap/starter-kit": "^3.18.0",
-    "ai": "^6.0.62",
     "next": "16.1.6",
     "openai": "^6.17.0",
     "react": "19.2.3",
