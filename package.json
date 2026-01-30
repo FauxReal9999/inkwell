@@ -12,6 +12,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.7.5",
     "@tiptap/extension-character-count": "^3.18.0",
     "@tiptap/extension-placeholder": "^3.18.0",
     "@tiptap/pm": "^3.18.0",
