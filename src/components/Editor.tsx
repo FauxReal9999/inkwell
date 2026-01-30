@@ -4,20 +4,112 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import CharacterCount from '@tiptap/extension-character-count';
-import { useState, useCallback } from 'react';
+import { Extension } from '@tiptap/core';
+import { useState, useCallback, forwardRef, useImperativeHandle } from 'react';
 
 interface EditorProps {
   initialContent?: string;
   onContentChange?: (content: string) => void;
 }
 
-export default function Editor({ initialContent = '', onContentChange }: EditorProps) {
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    beatTag: {
+      setBeat: (beatId: string) => ReturnType;
+      clearBeat: () => ReturnType;
+    };
+  }
+}
+
+export interface EditorHandle {
+  tagSelection: (beatId: string) => void;
+  clearBeatSelection: () => void;
+  scrollToBeat: (beatId: string) => boolean;
+  getPlainText: () => string;
+}
+
+const BeatTag = Extension.create({
+  name: 'beatTag',
+  addOptions() {
+    return {
+      types: ['paragraph', 'heading'],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          beatId: {
+            default: null,
+            parseHTML: (element) => element.getAttribute('data-beat-id'),
+            renderHTML: (attributes) => {
+              if (!attributes.beatId) {
+                return {};
+              }
+              return {
+                'data-beat-id': attributes.beatId,
+                class: 'beat-block',
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setBeat:
+        (beatId: string) =>
+        ({ tr, state, dispatch }) => {
+          const { from, to } = state.selection;
+          let updated = false;
+
+          state.doc.nodesBetween(from, to, (node, pos) => {
+            if (this.options.types.includes(node.type.name)) {
+              updated = true;
+              tr.setNodeMarkup(pos, undefined, { ...node.attrs, beatId });
+            }
+          });
+
+          if (updated && dispatch) {
+            dispatch(tr);
+          }
+          return updated;
+        },
+      clearBeat:
+        () =>
+        ({ tr, state, dispatch }) => {
+          const { from, to } = state.selection;
+          let updated = false;
+
+          state.doc.nodesBetween(from, to, (node, pos) => {
+            if (this.options.types.includes(node.type.name) && node.attrs.beatId) {
+              updated = true;
+              tr.setNodeMarkup(pos, undefined, { ...node.attrs, beatId: null });
+            }
+          });
+
+          if (updated && dispatch) {
+            dispatch(tr);
+          }
+          return updated;
+        },
+    };
+  },
+});
+
+const Editor = forwardRef<EditorHandle, EditorProps>(function Editor(
+  { initialContent = '', onContentChange },
+  ref
+) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const editor = useEditor({
     extensions: [
       StarterKit,
+      BeatTag,
       Placeholder.configure({
         placeholder: 'Start writing your story...',
       }),
@@ -29,10 +121,35 @@ export default function Editor({ initialContent = '', onContentChange }: EditorP
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-lg max-w-none focus:outline-none min-h-[60vh] px-4 py-2',
+        class:
+          'prose prose-lg max-w-none focus:outline-none min-h-[60vh] pl-10 pr-4 py-2',
       },
     },
   });
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      tagSelection: (beatId: string) => {
+        if (!editor) return;
+        editor.chain().focus().setBeat(beatId).run();
+      },
+      clearBeatSelection: () => {
+        if (!editor) return;
+        editor.chain().focus().clearBeat().run();
+      },
+      scrollToBeat: (beatId: string) => {
+        if (!editor) return false;
+        const root = editor.view.dom;
+        const target = root.querySelector(`[data-beat-id="${beatId}"]`);
+        if (!target) return false;
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return true;
+      },
+      getPlainText: () => editor?.getText() || '',
+    }),
+    [editor]
+  );
 
   const continueWriting = useCallback(async () => {
     if (!editor || isGenerating) return;
@@ -193,4 +310,6 @@ export default function Editor({ initialContent = '', onContentChange }: EditorP
       </div>
     </div>
   );
-}
+});
+
+export default Editor;

@@ -23,6 +23,23 @@
   color: #d6d3d1; /* stone-300 */
 }
 
+/* Beat tag gutter indicator */
+.beat-block {
+  position: relative;
+}
+
+.beat-block::before {
+  content: '';
+  position: absolute;
+  left: -1.1rem;
+  top: 0.6rem;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 9999px;
+  background: #f59e0b; /* amber-500 */
+  box-shadow: 0 0 0 3px rgba(120, 53, 15, 0.25);
+}
+
 /* Placeholder styling */
 .tiptap p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
