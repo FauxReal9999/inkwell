@@ -3,6 +3,7 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
+import CharacterCount from '@tiptap/extension-character-count';
 import { useState, useCallback } from 'react';
 
 interface EditorProps {
@@ -20,6 +21,7 @@ export default function Editor({ initialContent = '', onContentChange }: EditorP
       Placeholder.configure({
         placeholder: 'Start writing your story...',
       }),
+      CharacterCount,
     ],
     content: initialContent,
     onUpdate: ({ editor }) => {
